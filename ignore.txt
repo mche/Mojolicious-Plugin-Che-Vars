@@ -14,5 +14,5 @@ inc/
 nytprof.out
 pod2htm*.tmp
 pm_to_blib
-Mojolicious-Plugin-Che-Vars-*
-Mojolicious-Plugin-Che-Vars-*.tar.gz
+Mojolicious-Plugin-Helper-Vars-*
+Mojolicious-Plugin-Helper-Vars-*.tar.gz

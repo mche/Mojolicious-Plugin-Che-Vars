@@ -50,7 +50,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Mojolicious/Plugin/Che/Vars.pm');
+  module_boilerplate_ok('lib/Mojolicious/Plugin/Helper/Vars.pm');
 
 
 }

@@ -4,10 +4,10 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME             => 'Mojolicious::Plugin::Che::Vars',
+    NAME             => 'Mojolicious::Plugin::Helper::Vars',
     AUTHOR           => q{Михаил Че <mche@cpan.org>},
-    VERSION_FROM     => 'lib/Mojolicious/Plugin/Che/Vars.pm',
-    ABSTRACT_FROM    => 'lib/Mojolicious/Plugin/Che/Vars.pm',
+    VERSION_FROM     => 'lib/Mojolicious/Plugin/Helper/Vars.pm',
+    ABSTRACT_FROM    => 'lib/Mojolicious/Plugin/Helper/Vars.pm',
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
@@ -18,9 +18,8 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        #'ABC'              => 1.6,
-        #'Foo::Bar::Module' => 5.0401,
+        'Mojolicious'              => 6.00,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'Mojolicious-Plugin-Che-Vars-*' },
+    #clean => { FILES => 'Mojolicious-Plugin-Helper-Vars-*' },
 );
