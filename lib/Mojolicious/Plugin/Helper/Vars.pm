@@ -1,8 +1,9 @@
-package Mojolicious::Plugin::Che::Vars;
+package Mojolicious::Plugin::Helper::Vars;
 
 use Mojo::Base 'Mojolicious::Plugin';
 
 our $VERSION = '0.0001';
+my $pkg = __PACKAGE__;
 
 =pod
 
@@ -10,17 +11,27 @@ our $VERSION = '0.0001';
 
 Доброго всем
 
-=head1 Mojolicious::Plugin::Che::Vars
+=head1 Mojolicious::Plugin::Helper::Vars
 
 ¡ ¡ ¡ ALL GLORY TO GLORIA ! ! !
 
 =head1 NAME
 
-Mojolicious::Plugin::Che::Vars - Stash & every_params to one var named.
+Mojolicious::Plugin::Helper::Vars - Stash & every_params to one var named.
 
 =head1 SINOPSYS
 
-    $app->plugin('Che::Vars');
+    $app->plugin('Helper::Vars');
+    
+    # controller
+    $c->param('foo'=>[1,2,3]);
+    $foo = $c->vars('foo'); # 1
+    
+    $c->stash('foo'=>5);
+    $c->stash('Foo'=>['undef']);
+    @foo = $c->vars('foo', 'Foo'); # (5,undef,1,2,3)
+    
+    
 
 
 =head1 OPTIONS
@@ -31,11 +42,13 @@ Mojolicious::Plugin::Che::Vars - Stash & every_params to one var named.
 
 Name of the helper. Default - 'vars'.
 
+Возвращает объединенный список stash & every_param и в скалярном контексте первое из определенных. String value 'undef' convert to undef.
+
 =back
 
 =head1 SEE ALSO
 
-L<>
+L<Mojolicious::Plugin::ParamExpand>
 
 =head1 AUTHOR
 
@@ -43,7 +56,7 @@ L<>
 
 =head1 BUGS / CONTRIBUTING
 
-Please report any bugs or feature requests at L<https://github.com/mche/Mojolicious-Plugin-Che-Vars/issues>. Pull requests also welcome.
+Please report any bugs or feature requests at L<https://github.com/mche/Mojolicious-Plugin-Helper-Vars/issues>. Pull requests also welcome.
 
 =head1 COPYRIGHT
 
@@ -54,19 +67,84 @@ it under the same terms as Perl itself.
 
 =cut
 
+my $a;
+
 sub register {
   my ($self, $app, $conf)  = @_;
-  my $helper = delete $conf->{helper} || 'evars';
+  $a = $app;
+  my $helper = delete $conf->{helper} || 'vars';
   $app->helper($helper => sub {
     my $c = shift;
-    my $name = shift
-    decode $enc,
-      Data::Dumper->new(Data::Recursive::Encode->encode($enc, \@_),)
-      ->Indent(1)->Sortkeys(1)->Terse(1)->Useqq(0)->Dump;
+    my @vars;
+    my $undef = sub{my $val = shift; $val eq 'undef' ? undef : $val;};
+    for (@_) {
+      if (my $stash = $c->stash($_)) {
+        warn "Stash [$_]:", $c->dumper($stash);
+        if (ref($stash) eq 'ARRAY') {
+          push @vars, map $undef->($_), @$stash;
+        } else {
+          push @vars, $undef->($stash);
+        }
+      }
+    }
+    for (@_) {
+      if (my $param = $c->req->params->every_param($_)) {
+        warn "Param [$_]:", $c->dumper($param);
+        if (ref($param) eq 'ARRAY') {
+          push @vars, map $undef->($_), @$param;
+        } else {
+          push @vars, map $undef->($param);
+        }
+      }
+    }
+    return wantarray ? @vars : shift(@vars);
   });
   return $self;
 }
 
+sub Mojolicious::Controller::stash000 {
+  my $self = shift;
+  
+  # set only
+  $self->stash_stack(@_)
+    if @_ > 1 || ref($_[0]);
+  
+  require Mojo::Util;
+  Mojo::Util::_stash(stash => $self, @_);
+  
+}
 
+sub Mojolicious::Controller::stash_stack {
+  my $self = shift;
+  my $name = $pkg.'_stash_';
+  # get
+  return $self->{$name} ||= {} unless @_; # whole
+  return $self->{$name}{$_[0]} unless @_ > 1 || ref $_[0];
+  # set
+  
+  my $values = ref $_[0] ? $_[0] : {@_};
+  push @{$self->{$name}{$_}},
+    ref($values->{$_}) eq 'ARRAY' ? @{$values->{$_}} : $values->{$_}
+      for keys %$values;
+  return $self;
+}
+
+sub Mojo::Util::_stash000 {
+  my ($name, $object) = (shift, shift);
+  
+ 
+  # Hash
+  return $object->{$name} ||= {} unless @_;
+ 
+  # Get
+  return $object->{$name}{$_[0]} unless @_ > 1 || ref $_[0];
+ 
+ warn "Set stash:", $a->dumper($name, ref($object), @_);
+  # Set
+  my $values = ref $_[0] ? $_[0] : {@_};
+  @{$object->{$name}}{keys %$values} = values %$values;
+ 
+  return $object;
+}
 
 1;
