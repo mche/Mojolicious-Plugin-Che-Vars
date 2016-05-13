@@ -13,7 +13,7 @@ use lib "$FindBin::Bin/lib";
 sub startup {# 
   my $app = shift;
   $app->plugin('Helper::Vars', helper=>'myvars');
-  $app->routes->any('/:bar/:bar'=>sub{my $c = shift; $c->render(format=>'txt', text=>$c->dumper([$c->{stash}]))});
+  $app->routes->any('/:bar/:bar'=>sub{my $c = shift; $c->render(format=>'txt', text=>$c->dumper([$c->myvars('bar')]))});
 }
 __PACKAGE__->new()->start();
 

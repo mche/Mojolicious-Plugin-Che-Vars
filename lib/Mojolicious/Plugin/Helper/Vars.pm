@@ -27,9 +27,9 @@ Mojolicious::Plugin::Helper::Vars - Stash & every_params to one var named.
     $c->param('foo'=>[1,2,3]);
     $foo = $c->vars('foo'); # 1
     
-    $c->stash('foo'=>5);
-    $c->stash('Foo'=>['undef']);
-    @foo = $c->vars('foo', 'Foo'); # (5,undef,1,2,3)
+    $c->stash('foo'=>['undef']);
+    $c->stash('Foo'=>5);
+    @foo = $c->vars('foo', 'Foo'); # (1,2,3,undef,5)
     
     
 
@@ -79,7 +79,7 @@ sub register {
     my $undef = sub{my $val = shift; $val eq 'undef' ? undef : $val;};
     for (@_) {
       if (my $stash = $c->stash($_)) {
-        warn "Stash [$_]:", $c->dumper($stash);
+        #~ warn "Stash [$_]:", $c->dumper($stash);
         if (ref($stash) eq 'ARRAY') {
           push @vars, map $undef->($_), @$stash;
         } else {
@@ -89,7 +89,7 @@ sub register {
     }
     for (@_) {
       if (my $param = $c->req->params->every_param($_)) {
-        warn "Param [$_]:", $c->dumper($param);
+        #~ warn "Param [$_]:", $c->dumper($param);
         if (ref($param) eq 'ARRAY') {
           push @vars, map $undef->($_), @$param;
         } else {
@@ -100,51 +100,6 @@ sub register {
     return wantarray ? @vars : shift(@vars);
   });
   return $self;
-}
-
-sub Mojolicious::Controller::stash000 {
-  my $self = shift;
-  
-  # set only
-  $self->stash_stack(@_)
-    if @_ > 1 || ref($_[0]);
-  
-  require Mojo::Util;
-  Mojo::Util::_stash(stash => $self, @_);
-  
-}
-
-sub Mojolicious::Controller::stash_stack {
-  my $self = shift;
-  my $name = $pkg.'_stash_';
-  # get
-  return $self->{$name} ||= {} unless @_; # whole
-  return $self->{$name}{$_[0]} unless @_ > 1 || ref $_[0];
-  # set
-  
-  my $values = ref $_[0] ? $_[0] : {@_};
-  push @{$self->{$name}{$_}},
-    ref($values->{$_}) eq 'ARRAY' ? @{$values->{$_}} : $values->{$_}
-      for keys %$values;
-  return $self;
-}
-
-sub Mojo::Util::_stash000 {
-  my ($name, $object) = (shift, shift);
-  
- 
-  # Hash
-  return $object->{$name} ||= {} unless @_;
- 
-  # Get
-  return $object->{$name}{$_[0]} unless @_ > 1 || ref $_[0];
- 
- warn "Set stash:", $a->dumper($name, ref($object), @_);
-  # Set
-  my $values = ref $_[0] ? $_[0] : {@_};
-  @{$object->{$name}}{keys %$values} = values %$values;
- 
-  return $object;
 }
 
 1;
