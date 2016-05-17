@@ -2,7 +2,7 @@ package Mojolicious::Plugin::Helper::Vars;
 
 use Mojo::Base 'Mojolicious::Plugin';
 
-our $VERSION = '0.0001';
+our $VERSION = '0.0002';
 my $pkg = __PACKAGE__;
 
 =pod
