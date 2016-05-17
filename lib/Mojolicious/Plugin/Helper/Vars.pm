@@ -67,23 +67,23 @@ it under the same terms as Perl itself.
 
 =cut
 
-my $a;
+#~ my $a;
 
 sub register {
   my ($self, $app, $conf)  = @_;
-  $a = $app;
+  #~ $a = $app;
   my $helper = delete $conf->{helper} || 'vars';
   $app->helper($helper => sub {
     my $c = shift;
     my @vars;
-    my $undef = sub{my $val = shift; $val eq 'undef' ? undef : $val;};
+    my $val = sub{my $val = shift; $val eq 'undef' ? undef : $val;};
     for (@_) {
       if (my $stash = $c->stash($_)) {
         #~ warn "Stash [$_]:", $c->dumper($stash);
         if (ref($stash) eq 'ARRAY') {
-          push @vars, map $undef->($_), @$stash;
+          push @vars, map $val->($_), @$stash;
         } else {
-          push @vars, $undef->($stash);
+          push @vars, $val->($stash);
         }
       }
     }
@@ -91,9 +91,9 @@ sub register {
       if (my $param = $c->req->params->every_param($_)) {
         #~ warn "Param [$_]:", $c->dumper($param);
         if (ref($param) eq 'ARRAY') {
-          push @vars, map $undef->($_), @$param;
+          push @vars, map $val->($_), @$param;
         } else {
-          push @vars, map $undef->($param);
+          push @vars, map $val->($param);
         }
       }
     }

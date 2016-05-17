@@ -6,9 +6,6 @@ use Mojo::Base 'Mojolicious';
 
 use FindBin;
 use lib "$FindBin::Bin/lib";
-#~ use Mojolicious::RoutesMy;
-
-#~ has routes   => sub { Mojolicious::RoutesMy->new };
 
 sub startup {# 
   my $app = shift;
