@@ -80,29 +80,33 @@ sub register {
   $app->helper($helper => sub {
     my $c = shift;
     my @vars;
-    my $val = sub{my $val = shift; $val eq 'undef' ? undef : $val;};
     for (@_) {
-      if (my $stash = $c->stash($_)) {
+      if (defined(my $stash = $c->stash($_))) {
         #~ warn "Stash [$_]:", $c->dumper($stash);
         if (ref($stash) eq 'ARRAY') {
-          push @vars, map $val->($_), @$stash;
+          push @vars, map _val($_), @$stash;
         } else {
-          push @vars, $val->($stash);
+          push @vars, _val($stash);
         }
       }
 
       if (my $param = $c->req->params->every_param($_)) {
         #~ warn "Param [$_]:", $c->dumper($param);
-        if (ref($param) eq 'ARRAY') {
-          push @vars, map $val->($_), @$param;
-        } else {
-          push @vars, map $val->($param);
-        }
+        #~ if (ref($param) eq 'ARRAY') {
+          push @vars, map _val($_), @$param;
+        #~ } else {
+          #~ push @vars, map $val->($param);
+        #~ }
       }
     }
     return wantarray ? @vars : shift(@vars);
   });
   return $self;
+}
+
+sub _val {
+  my $val = shift;
+  return $val eq 'undef' ? undef : $val;
 }
 
 1;
