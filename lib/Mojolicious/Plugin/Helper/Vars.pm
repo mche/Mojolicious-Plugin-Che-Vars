@@ -2,7 +2,7 @@ package Mojolicious::Plugin::Helper::Vars;
 
 use Mojo::Base 'Mojolicious::Plugin';
 
-our $VERSION = '0.0003';
+our $VERSION = '0.0004';
 my $pkg = __PACKAGE__;
 
 =pod
@@ -17,7 +17,7 @@ my $pkg = __PACKAGE__;
 
 =head VERSION
 
-0.0003
+0.0004
 
 =head1 NAME
 
@@ -106,7 +106,7 @@ sub register {
 
 sub _val {
   my $val = shift;
-  return $val eq 'undef' ? undef : $val;
+  return $val eq 'undef' || $val eq 'undefined' ? undef : $val;
 }
 
 1;
